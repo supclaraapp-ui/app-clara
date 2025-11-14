@@ -5,9 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Check, Sparkles, TrendingUp, Shield, Zap, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { getStripe } from "@/lib/stripe";
 
 export default function Home() {
   const router = useRouter();
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
 
   const features = [
     {
@@ -37,6 +40,7 @@ export default function Home() {
       name: "Mensal",
       price: "19,90",
       period: "/mês",
+      priceId: "price_monthly", // Você vai substituir isso pela sua Price ID do Stripe
       features: [
         "Controle completo de receitas e despesas",
         "Gestão de cartões de crédito",
@@ -51,6 +55,7 @@ export default function Home() {
       name: "Anual",
       price: "199,90",
       period: "/ano",
+      priceId: "price_yearly", // Você vai substituir isso pela sua Price ID do Stripe
       savings: "Economize R$ 38,90",
       features: [
         "Tudo do plano mensal",
@@ -65,6 +70,42 @@ export default function Home() {
       highlight: true
     }
   ];
+
+  const handleSubscribe = async (priceId: string, planName: string) => {
+    try {
+      setLoadingPlan(planName);
+
+      // Cria a sessão de checkout
+      const response = await fetch('/api/create-checkout-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          priceId,
+          planName,
+        }),
+      });
+
+      const { sessionId, url } = await response.json();
+
+      if (url) {
+        // Redireciona para o checkout do Stripe
+        window.location.href = url;
+      } else {
+        // Fallback: usa o Stripe.js para redirecionar
+        const stripe = await getStripe();
+        if (stripe) {
+          await stripe.redirectToCheckout({ sessionId });
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao processar pagamento:', error);
+      alert('Erro ao processar pagamento. Tente novamente.');
+    } finally {
+      setLoadingPlan(null);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-gray-900">
@@ -231,9 +272,10 @@ export default function Home() {
                       ? 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-xl'
                       : 'bg-gray-900 hover:bg-gray-800 text-white dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100'
                   }`}
-                  onClick={() => router.push("/login")}
+                  onClick={() => handleSubscribe(plan.priceId, plan.name)}
+                  disabled={loadingPlan === plan.name}
                 >
-                  Começar Agora
+                  {loadingPlan === plan.name ? 'Processando...' : 'Assinar Agora'}
                 </Button>
               </CardContent>
             </Card>
@@ -254,9 +296,12 @@ export default function Home() {
             <Button 
               size="lg"
               className="bg-white text-purple-600 hover:bg-gray-100 px-8 py-6 text-lg font-semibold shadow-xl"
-              onClick={() => router.push("/login")}
+              onClick={() => {
+                const pricingSection = document.getElementById('pricing');
+                pricingSection?.scrollIntoView({ behavior: 'smooth' });
+              }}
             >
-              Criar Conta Grátis
+              Ver Planos
             </Button>
           </CardContent>
         </Card>

@@ -8,31 +8,26 @@ export const isSupabaseConfigured = () => {
   return !!supabaseUrl && !!supabaseAnonKey && supabaseUrl !== '' && supabaseAnonKey !== '';
 };
 
-// Mock client para quando Supabase não estiver configurado
-const createMockClient = () => ({
-  auth: {
-    signInWithPassword: async () => ({ 
-      data: { user: null, session: null }, 
-      error: { message: 'Supabase não configurado' } 
+// Cliente mock para desenvolvimento sem configuração
+const createMockClient = () => {
+  return {
+    auth: {
+      signInWithPassword: async () => ({ data: null, error: { message: 'Supabase não configurado' } }),
+      signUp: async () => ({ data: null, error: { message: 'Supabase não configurado' } }),
+      signOut: async () => ({ error: null }),
+      getSession: async () => ({ data: { session: null }, error: null }),
+      onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
+    },
+    from: () => ({
+      select: () => ({ data: [], error: null }),
+      insert: () => ({ data: null, error: { message: 'Supabase não configurado' } }),
+      update: () => ({ data: null, error: { message: 'Supabase não configurado' } }),
+      delete: () => ({ data: null, error: { message: 'Supabase não configurado' } }),
     }),
-    signUp: async () => ({ 
-      data: { user: null, session: null }, 
-      error: { message: 'Supabase não configurado' } 
-    }),
-    signOut: async () => ({ error: null }),
-    getSession: async () => ({ data: { session: null }, error: null }),
-    getUser: async () => ({ data: { user: null }, error: null }),
-    onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
-  },
-  from: () => ({
-    select: () => ({ data: [], error: null }),
-    insert: () => ({ data: null, error: null }),
-    update: () => ({ data: null, error: null }),
-    delete: () => ({ data: null, error: null }),
-  }),
-});
+  };
+};
 
-// Cria cliente real se configurado, mock se não
+// Cria cliente real ou mock
 export const supabase = isSupabaseConfigured()
   ? createClient(supabaseUrl, supabaseAnonKey)
   : createMockClient() as any;

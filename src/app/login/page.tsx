@@ -70,7 +70,7 @@ const features = [
   },
   {
     icon: Users,
-    title: "Comunidade Ativa",
+    title: "+10mil Usuários",
     description: "Milhares de pessoas já transformaram suas finanças"
   }
 ];
@@ -98,6 +98,11 @@ export default function LoginPage() {
       return;
     }
 
+    if (!supabase) {
+      setError("Erro ao conectar com o Supabase.");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -111,7 +116,7 @@ export default function LoginPage() {
         if (error) throw error;
         
         if (data.user) {
-          router.push("/dashboard");
+          router.push("/");
         }
       } else {
         // Cadastro
@@ -128,7 +133,7 @@ export default function LoginPage() {
         if (error) throw error;
         
         if (data.user) {
-          router.push("/dashboard");
+          router.push("/");
         }
       }
     } catch (err: any) {
@@ -161,7 +166,7 @@ export default function LoginPage() {
             <div className="space-y-4">
               <Badge className="bg-gradient-to-r from-blue-500 to-purple-600 text-white border-0">
                 <Sparkles className="w-3 h-3 mr-1" />
-                Junte-se a milhares de usuários
+                Mais de 10.000 usuários ativos
               </Badge>
               <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white leading-tight">
                 Transforme sua vida financeira com{" "}
