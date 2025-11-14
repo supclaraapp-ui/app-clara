@@ -1,209 +1,201 @@
 "use client";
 
-import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Header } from "@/components/custom/header";
+import { Navbar } from "@/components/custom/navbar";
 import { Button } from "@/components/ui/button";
+import { CreditCard, Plus, Eye, EyeOff, Calendar, DollarSign } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Logo } from "@/components/logo";
-import { Plus, TrendingUp, TrendingDown, CreditCard, Calendar, Target, PiggyBank, ArrowLeft, Edit, Trash2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 
-interface CreditCard {
-  id: string;
-  name: string;
-  brand: string;
-  limit: number;
-  used: number;
-  available: number;
-  closingDay: number;
-  dueDay: number;
-  currentBill: number;
-}
+export default function CartoesPage() {
+  const [showValues, setShowValues] = useState(true);
 
-export default function Cartoes() {
-  const router = useRouter();
-  const [cards, setCards] = useState<CreditCard[]>([
+  const cards = [
     {
-      id: "1",
+      id: 1,
       name: "Nubank",
+      lastDigits: "4321",
       brand: "Mastercard",
-      limit: 5000,
-      used: 1200,
-      available: 3800,
-      closingDay: 15,
-      dueDay: 22,
-      currentBill: 1200,
+      limit: 5000.00,
+      used: 2350.00,
+      dueDate: "2024-01-25",
+      color: "from-purple-500 to-purple-700",
     },
     {
-      id: "2",
+      id: 2,
       name: "Itaú",
+      lastDigits: "8765",
       brand: "Visa",
-      limit: 3000,
-      used: 800,
-      available: 2200,
-      closingDay: 10,
-      dueDay: 17,
-      currentBill: 800,
+      limit: 8000.00,
+      used: 4120.00,
+      dueDate: "2024-01-28",
+      color: "from-blue-500 to-blue-700",
     },
-  ]);
+    {
+      id: 3,
+      name: "Bradesco",
+      lastDigits: "1234",
+      brand: "Elo",
+      limit: 3000.00,
+      used: 890.00,
+      dueDate: "2024-01-20",
+      color: "from-red-500 to-red-700",
+    },
+  ];
 
-  const handleAddCard = () => {
-    alert("Adicionar novo cartão - funcionalidade em desenvolvimento");
-  };
-
-  const handleEditCard = (card: CreditCard) => {
-    alert(`Editar cartão: ${card.name} - funcionalidade em desenvolvimento`);
-  };
-
-  const handleDeleteCard = (card: CreditCard) => {
-    if (confirm(`Tem certeza que deseja excluir o cartão ${card.name}?`)) {
-      setCards(prev => prev.filter(c => c.id !== card.id));
-      alert("Cartão excluído com sucesso!");
-    }
-  };
-
-  const handleNavigateHome = () => router.push("/");
-  const handleNavigateLancamentos = () => router.push("/lancamentos");
-  const handleNavigateCartoes = () => router.push("/cartoes");
-  const handleNavigateDashboard = () => router.push("/dashboard");
-  const handleNavigatePerfil = () => router.push("/perfil");
+  const totalLimit = cards.reduce((acc, card) => acc + card.limit, 0);
+  const totalUsed = cards.reduce((acc, card) => acc + card.used, 0);
+  const totalAvailable = totalLimit - totalUsed;
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="p-4 border-b">
-        <div className="flex items-center justify-between">
-          <Button variant="ghost" size="icon" onClick={() => router.back()}>
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <Logo />
-          <Button variant="ghost" size="icon" onClick={handleAddCard}>
-            <Plus className="w-5 h-5" />
-          </Button>
-        </div>
-      </header>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <Header title="Cartões" subtitle="Gerencie seus cartões de crédito" />
 
-      {/* Main Content */}
-      <main className="p-4 space-y-6 pb-20">
-        <div className="text-center">
-          <h1 className="text-2xl font-semibold">Meus Cartões</h1>
-          <p className="text-muted-foreground">Gerencie seus cartões de crédito</p>
-        </div>
+      <main className="p-4 space-y-6 pb-24 max-w-4xl mx-auto">
+        {/* Resumo Geral */}
+        <Card className="shadow-lg">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Resumo Total
+              </h3>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowValues(!showValues)}
+              >
+                {showValues ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
+              </Button>
+            </div>
 
+            <div className="grid grid-cols-3 gap-4">
+              <div className="text-center">
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Limite Total</p>
+                <p className="text-xl font-bold text-gray-900 dark:text-white">
+                  {showValues ? `R$ ${(totalLimit / 1000).toFixed(0)}k` : "••••"}
+                </p>
+              </div>
+              <div className="text-center">
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Utilizado</p>
+                <p className="text-xl font-bold text-red-600 dark:text-red-400">
+                  {showValues ? `R$ ${(totalUsed / 1000).toFixed(1)}k` : "••••"}
+                </p>
+              </div>
+              <div className="text-center">
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Disponível</p>
+                <p className="text-xl font-bold text-green-600 dark:text-green-400">
+                  {showValues ? `R$ ${(totalAvailable / 1000).toFixed(1)}k` : "••••"}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Lista de Cartões */}
         <div className="space-y-4">
-          {cards.map((card) => (
-            <Card key={card.id}>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <CreditCard className="w-8 h-8 text-blue-600" />
-                    <div>
-                      <CardTitle className="text-lg">{card.name}</CardTitle>
-                      <p className="text-sm text-muted-foreground">{card.brand}</p>
+          {cards.map((card) => {
+            const usagePercentage = ((card.used / card.limit) * 100).toFixed(0);
+            const available = card.limit - card.used;
+            const daysUntilDue = Math.ceil((new Date(card.dueDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+
+            return (
+              <Card key={card.id} className="shadow-lg overflow-hidden">
+                <div className={`h-2 bg-gradient-to-r ${card.color}`} />
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-12 h-12 bg-gradient-to-br ${card.color} rounded-xl flex items-center justify-center shadow-lg`}>
+                        <CreditCard className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-gray-900 dark:text-white">
+                          {card.name}
+                        </CardTitle>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          {card.brand} •••• {card.lastDigits}
+                        </p>
+                      </div>
+                    </div>
+                    <Badge variant={daysUntilDue <= 5 ? "destructive" : "secondary"}>
+                      {daysUntilDue <= 0 ? "Vencido" : `${daysUntilDue} dias`}
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* Valores */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Limite</p>
+                      <p className="text-lg font-bold text-gray-900 dark:text-white">
+                        {showValues ? `R$ ${card.limit.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : "••••••"}
+                      </p>
+                    </div>
+                    <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Disponível</p>
+                      <p className="text-lg font-bold text-green-600 dark:text-green-400">
+                        {showValues ? `R$ ${available.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : "••••••"}
+                      </p>
                     </div>
                   </div>
-                  <div className="flex gap-2">
-                    <Button variant="ghost" size="sm" onClick={() => handleEditCard(card)}>
-                      <Edit className="w-4 h-4" />
+
+                  {/* Barra de Uso */}
+                  <div>
+                    <div className="flex justify-between text-sm mb-2">
+                      <span className="text-gray-600 dark:text-gray-400">Utilizado</span>
+                      <span className="font-semibold text-gray-900 dark:text-white">
+                        {showValues ? `${usagePercentage}%` : "••%"}
+                      </span>
+                    </div>
+                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                      <div 
+                        className={`h-full bg-gradient-to-r ${card.color} transition-all`}
+                        style={{ width: `${usagePercentage}%` }}
+                      />
+                    </div>
+                    {showValues && (
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                        R$ {card.used.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} de R$ {card.limit.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Vencimento */}
+                  <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                      <span className="text-sm text-gray-600 dark:text-gray-400">Vencimento</span>
+                    </div>
+                    <span className="font-semibold text-gray-900 dark:text-white">
+                      {new Date(card.dueDate).toLocaleDateString('pt-BR')}
+                    </span>
+                  </div>
+
+                  {/* Ações */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button variant="outline" className="gap-2">
+                      <DollarSign className="w-4 h-4" />
+                      Ver Fatura
                     </Button>
-                    <Button variant="ghost" size="sm" onClick={() => handleDeleteCard(card)}>
-                      <Trash2 className="w-4 h-4" />
+                    <Button variant="outline" className="gap-2">
+                      <Plus className="w-4 h-4" />
+                      Lançar Gasto
                     </Button>
                   </div>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Limite Total</p>
-                    <p className="text-lg font-semibold">R$ {card.limit.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Limite Disponível</p>
-                    <p className="text-lg font-semibold text-green-600">R$ {card.available.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span>Utilizado</span>
-                    <span>R$ {card.used.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className="bg-blue-600 h-2 rounded-full"
-                      style={{ width: `${(card.used / card.limit) * 100}%` }}
-                    ></div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-3 gap-4 text-center">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Fechamento</p>
-                    <p className="font-semibold">Dia {card.closingDay}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Vencimento</p>
-                    <p className="font-semibold">Dia {card.dueDay}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Fatura Atual</p>
-                    <p className="font-semibold">R$ {card.currentBill.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
-                  </div>
-                </div>
-
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm" className="flex-1">
-                    Ver Lançamentos
-                  </Button>
-                  <Button variant="outline" size="sm" className="flex-1">
-                    Ver Gráfico
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
 
-        {cards.length === 0 && (
-          <Card>
-            <CardContent className="text-center py-8">
-              <CreditCard className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground">Nenhum cartão cadastrado</p>
-              <Button onClick={handleAddCard} className="mt-4">
-                <Plus className="w-4 h-4 mr-2" />
-                Adicionar Primeiro Cartão
-              </Button>
-            </CardContent>
-          </Card>
-        )}
+        {/* Botão Adicionar Cartão */}
+        <Button className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 h-14 gap-2">
+          <Plus className="w-5 h-5" />
+          Adicionar Novo Cartão
+        </Button>
       </main>
 
-      {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-background border-t p-2">
-        <div className="flex justify-around">
-          <Button variant="ghost" size="sm" className="flex-col gap-1" onClick={handleNavigateHome}>
-            <TrendingUp className="w-5 h-5" />
-            <span className="text-xs">Home</span>
-          </Button>
-          <Button variant="ghost" size="sm" className="flex-col gap-1" onClick={handleNavigateLancamentos}>
-            <Plus className="w-5 h-5" />
-            <span className="text-xs">Lançamentos</span>
-          </Button>
-          <Button variant="ghost" size="sm" className="flex-col gap-1" onClick={handleNavigateCartoes}>
-            <CreditCard className="w-5 h-5" />
-            <span className="text-xs">Cartões</span>
-          </Button>
-          <Button variant="ghost" size="sm" className="flex-col gap-1" onClick={handleNavigateDashboard}>
-            <Target className="w-5 h-5" />
-            <span className="text-xs">Dashboard</span>
-          </Button>
-          <Button variant="ghost" size="sm" className="flex-col gap-1" onClick={handleNavigatePerfil}>
-            <PiggyBank className="w-5 h-5" />
-            <span className="text-xs">Perfil</span>
-          </Button>
-        </div>
-      </nav>
+      <Navbar />
     </div>
   );
 }

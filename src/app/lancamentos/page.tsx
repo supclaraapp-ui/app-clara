@@ -2,232 +2,279 @@
 
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Header } from "@/components/custom/header";
+import { Navbar } from "@/components/custom/navbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { Logo } from "@/components/logo";
-import { Plus, TrendingUp, TrendingDown, CreditCard, Calendar, Target, PiggyBank, ArrowLeft, Save } from "lucide-react";
+import { TrendingUp, TrendingDown, Calendar, DollarSign } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-export default function Lancamentos() {
+export default function LancamentosPage() {
   const router = useRouter();
-  const [formData, setFormData] = useState({
-    type: "expense",
-    date: new Date().toISOString().split('T')[0],
-    description: "",
-    category: "",
-    subcategory: "",
-    value: "",
-    account: "",
-    repeat: false,
-    attachment: null as File | null,
-  });
+  const [type, setType] = useState<"income" | "expense">("expense");
+  const [amount, setAmount] = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("");
+  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
 
-  const handleInputChange = (field: string, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  const expenseCategories = [
+    "Alimentação",
+    "Transporte",
+    "Moradia",
+    "Saúde",
+    "Lazer",
+    "Educação",
+    "Outros",
+  ];
+
+  const incomeCategories = [
+    "Salário",
+    "Freelance",
+    "Investimentos",
+    "Outros",
+  ];
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Aqui você implementaria a lógica de salvar o lançamento
+    alert(`Lançamento registrado!\nTipo: ${type === "income" ? "Entrada" : "Despesa"}\nValor: R$ ${amount}\nDescrição: ${description}\nCategoria: ${category}\nData: ${date}`);
+    
+    // Limpar formulário
+    setAmount("");
+    setDescription("");
+    setCategory("");
+    setDate(new Date().toISOString().split('T')[0]);
   };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
-    setFormData(prev => ({ ...prev, attachment: file }));
-  };
-
-  const handleSave = () => {
-    // Simular salvamento
-    alert("Lançamento salvo com sucesso!");
-    // Reset form
-    setFormData({
-      type: "expense",
-      date: new Date().toISOString().split('T')[0],
-      description: "",
-      category: "",
-      subcategory: "",
-      value: "",
-      account: "",
-      repeat: false,
-      attachment: null,
-    });
-  };
-
-  const handleNavigateHome = () => router.push("/");
-  const handleNavigateLancamentos = () => router.push("/lancamentos");
-  const handleNavigateCartoes = () => router.push("/cartoes");
-  const handleNavigateDashboard = () => router.push("/dashboard");
-  const handleNavigatePerfil = () => router.push("/perfil");
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="p-4 border-b">
-        <div className="flex items-center justify-between">
-          <Button variant="ghost" size="icon" onClick={() => router.back()}>
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <Logo />
-          <div></div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <Header title="Lançamentos" subtitle="Registre suas movimentações" />
 
-      {/* Main Content */}
-      <main className="p-4 space-y-6 pb-20">
-        <div className="text-center">
-          <h1 className="text-2xl font-semibold">Novo Lançamento</h1>
-          <p className="text-muted-foreground">Adicione uma entrada ou saída</p>
-        </div>
-
-        <Card>
+      <main className="p-4 space-y-6 pb-24 max-w-4xl mx-auto">
+        <Card className="shadow-lg">
           <CardHeader>
-            <CardTitle>Detalhes do Lançamento</CardTitle>
+            <CardTitle className="text-gray-900 dark:text-white">
+              Novo Lançamento
+            </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="type">Tipo</Label>
-                <Select value={formData.type} onValueChange={(value) => handleInputChange("type", value)}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="income">Entrada</SelectItem>
-                    <SelectItem value="expense">Saída</SelectItem>
-                    <SelectItem value="transfer">Transferência</SelectItem>
-                    <SelectItem value="fixed_income">Receita Fixa</SelectItem>
-                    <SelectItem value="fixed_expense">Despesa Fixa</SelectItem>
-                  </SelectContent>
-                </Select>
+          <CardContent>
+            <Tabs value={type} onValueChange={(value) => setType(value as "income" | "expense")}>
+              <TabsList className="grid w-full grid-cols-2 mb-6">
+                <TabsTrigger value="expense" className="gap-2">
+                  <TrendingDown className="w-4 h-4" />
+                  Despesa
+                </TabsTrigger>
+                <TabsTrigger value="income" className="gap-2">
+                  <TrendingUp className="w-4 h-4" />
+                  Entrada
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="expense">
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="amount">Valor</Label>
+                    <div className="relative">
+                      <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                      <Input
+                        id="amount"
+                        type="number"
+                        step="0.01"
+                        placeholder="0,00"
+                        value={amount}
+                        onChange={(e) => setAmount(e.target.value)}
+                        className="pl-10"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="description">Descrição</Label>
+                    <Input
+                      id="description"
+                      placeholder="Ex: Almoço no restaurante"
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="category">Categoria</Label>
+                    <Select value={category} onValueChange={setCategory} required>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione uma categoria" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {expenseCategories.map((cat) => (
+                          <SelectItem key={cat} value={cat}>
+                            {cat}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="date">Data</Label>
+                    <div className="relative">
+                      <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                      <Input
+                        id="date"
+                        type="date"
+                        value={date}
+                        onChange={(e) => setDate(e.target.value)}
+                        className="pl-10"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <Button
+                    type="submit"
+                    className="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700"
+                  >
+                    Registrar Despesa
+                  </Button>
+                </form>
+              </TabsContent>
+
+              <TabsContent value="income">
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="amount-income">Valor</Label>
+                    <div className="relative">
+                      <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                      <Input
+                        id="amount-income"
+                        type="number"
+                        step="0.01"
+                        placeholder="0,00"
+                        value={amount}
+                        onChange={(e) => setAmount(e.target.value)}
+                        className="pl-10"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="description-income">Descrição</Label>
+                    <Input
+                      id="description-income"
+                      placeholder="Ex: Salário mensal"
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="category-income">Categoria</Label>
+                    <Select value={category} onValueChange={setCategory} required>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione uma categoria" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {incomeCategories.map((cat) => (
+                          <SelectItem key={cat} value={cat}>
+                            {cat}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="date-income">Data</Label>
+                    <div className="relative">
+                      <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                      <Input
+                        id="date-income"
+                        type="date"
+                        value={date}
+                        onChange={(e) => setDate(e.target.value)}
+                        className="pl-10"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <Button
+                    type="submit"
+                    className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
+                  >
+                    Registrar Entrada
+                  </Button>
+                </form>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
+
+        {/* Últimos Lançamentos */}
+        <Card className="shadow-lg">
+          <CardHeader>
+            <CardTitle className="text-gray-900 dark:text-white">
+              Últimos Lançamentos
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 bg-red-50 dark:bg-red-900/20 rounded-xl">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-red-100 dark:bg-red-900/40 rounded-lg flex items-center justify-center">
+                    <TrendingDown className="w-5 h-5 text-red-600 dark:text-red-400" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-900 dark:text-white">Supermercado</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Alimentação • Hoje</p>
+                  </div>
+                </div>
+                <span className="font-bold text-red-600 dark:text-red-400">
+                  -R$ 250,00
+                </span>
               </div>
-              <div>
-                <Label htmlFor="date">Data</Label>
-                <Input
-                  id="date"
-                  type="date"
-                  value={formData.date}
-                  onChange={(e) => handleInputChange("date", e.target.value)}
-                />
+
+              <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-xl">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-green-100 dark:bg-green-900/40 rounded-lg flex items-center justify-center">
+                    <TrendingUp className="w-5 h-5 text-green-600 dark:text-green-400" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-900 dark:text-white">Freelance</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Freelance • Ontem</p>
+                  </div>
+                </div>
+                <span className="font-bold text-green-600 dark:text-green-400">
+                  +R$ 1.500,00
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between p-3 bg-red-50 dark:bg-red-900/20 rounded-xl">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-red-100 dark:bg-red-900/40 rounded-lg flex items-center justify-center">
+                    <TrendingDown className="w-5 h-5 text-red-600 dark:text-red-400" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-900 dark:text-white">Uber</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Transporte • 2 dias atrás</p>
+                  </div>
+                </div>
+                <span className="font-bold text-red-600 dark:text-red-400">
+                  -R$ 35,00
+                </span>
               </div>
             </div>
-
-            <div>
-              <Label htmlFor="description">Descrição</Label>
-              <Input
-                id="description"
-                placeholder="Ex: Salário, Conta de luz..."
-                value={formData.description}
-                onChange={(e) => handleInputChange("description", e.target.value)}
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="category">Categoria</Label>
-                <Select value={formData.category} onValueChange={(value) => handleInputChange("category", value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="alimentacao">Alimentação</SelectItem>
-                    <SelectItem value="transporte">Transporte</SelectItem>
-                    <SelectItem value="lazer">Lazer</SelectItem>
-                    <SelectItem value="saude">Saúde</SelectItem>
-                    <SelectItem value="educacao">Educação</SelectItem>
-                    <SelectItem value="outros">Outros</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="subcategory">Subcategoria</Label>
-                <Input
-                  id="subcategory"
-                  placeholder="Ex: Restaurante, Combustível..."
-                  value={formData.subcategory}
-                  onChange={(e) => handleInputChange("subcategory", e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="value">Valor</Label>
-                <Input
-                  id="value"
-                  type="number"
-                  step="0.01"
-                  placeholder="0,00"
-                  value={formData.value}
-                  onChange={(e) => handleInputChange("value", e.target.value)}
-                />
-              </div>
-              <div>
-                <Label htmlFor="account">Conta/Banco/Cartão</Label>
-                <Select value={formData.account} onValueChange={(value) => handleInputChange("account", value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="nubank">Nubank</SelectItem>
-                    <SelectItem value="itau">Itaú</SelectItem>
-                    <SelectItem value="dinheiro">Dinheiro</SelectItem>
-                    <SelectItem value="carteira">Carteira</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div>
-              <Label htmlFor="attachment">Anexo (Foto/Comprovante)</Label>
-              <Input
-                id="attachment"
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-              />
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                id="repeat"
-                checked={formData.repeat}
-                onChange={(e) => handleInputChange("repeat", e.target.checked)}
-              />
-              <Label htmlFor="repeat">Repetir mensalmente</Label>
-            </div>
-
-            <Button onClick={handleSave} className="w-full">
-              <Save className="w-4 h-4 mr-2" />
-              Salvar Lançamento
-            </Button>
           </CardContent>
         </Card>
       </main>
 
-      {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-background border-t p-2">
-        <div className="flex justify-around">
-          <Button variant="ghost" size="sm" className="flex-col gap-1" onClick={handleNavigateHome}>
-            <TrendingUp className="w-5 h-5" />
-            <span className="text-xs">Home</span>
-          </Button>
-          <Button variant="ghost" size="sm" className="flex-col gap-1" onClick={handleNavigateLancamentos}>
-            <Plus className="w-5 h-5" />
-            <span className="text-xs">Lançamentos</span>
-          </Button>
-          <Button variant="ghost" size="sm" className="flex-col gap-1" onClick={handleNavigateCartoes}>
-            <CreditCard className="w-5 h-5" />
-            <span className="text-xs">Cartões</span>
-          </Button>
-          <Button variant="ghost" size="sm" className="flex-col gap-1" onClick={handleNavigateDashboard}>
-            <Target className="w-5 h-5" />
-            <span className="text-xs">Dashboard</span>
-          </Button>
-          <Button variant="ghost" size="sm" className="flex-col gap-1" onClick={handleNavigatePerfil}>
-            <PiggyBank className="w-5 h-5" />
-            <span className="text-xs">Perfil</span>
-          </Button>
-        </div>
-      </nav>
+      <Navbar />
     </div>
   );
 }

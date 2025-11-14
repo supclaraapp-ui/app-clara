@@ -20,9 +20,15 @@ export default function AdminLoginPage() {
     // Simulação de autenticação (substitua por sua lógica real)
     setTimeout(() => {
       if (email === "admin@clara.com" && password === "admin123") {
-        // Salvar token/sessão
-        localStorage.setItem("adminToken", "admin-authenticated");
-        router.push("/admin/dashboard");
+        try {
+          // Salvar token/sessão
+          localStorage.setItem("adminToken", "admin-authenticated");
+          router.replace("/admin/dashboard");
+        } catch (error) {
+          console.error("Erro ao salvar token:", error);
+          setError("Erro ao fazer login. Tente novamente.");
+          setLoading(false);
+        }
       } else {
         setError("Email ou senha incorretos");
         setLoading(false);

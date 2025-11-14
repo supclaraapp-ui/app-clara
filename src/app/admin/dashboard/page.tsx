@@ -43,14 +43,24 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     // Verificar autenticação
-    const token = localStorage.getItem("adminToken");
-    if (!token) {
-      router.push("/admin/login");
-      return;
-    }
+    const checkAuth = () => {
+      try {
+        const token = localStorage.getItem("adminToken");
+        if (!token) {
+          router.replace("/admin/login");
+          return false;
+        }
+        return true;
+      } catch (error) {
+        console.error("Erro ao verificar autenticação:", error);
+        return false;
+      }
+    };
+
+    if (!checkAuth()) return;
 
     // Simular carregamento de dados
-    setTimeout(() => {
+    const loadData = setTimeout(() => {
       setStats({
         totalUsers: 1247,
         activeUsers: 892,
@@ -90,28 +100,39 @@ export default function AdminDashboard() {
 
       setLoading(false);
     }, 1000);
+
+    return () => clearTimeout(loadData);
   }, [router]);
 
   const handleLogout = () => {
-    localStorage.removeItem("adminToken");
-    router.push("/admin/login");
+    try {
+      localStorage.removeItem("adminToken");
+      router.replace("/admin/login");
+    } catch (error) {
+      console.error("Erro ao fazer logout:", error);
+    }
   };
 
   const handleExportData = () => {
-    // Simular exportação de dados dos usuários para CSV
-    const csvContent = "data:text/csv;charset=utf-8," +
-      "ID,Nome,Email,Saldo,Transações,Último Acesso,Status\n" +
-      users.map(user =>
-        `${user.id},"${user.name}","${user.email}",${user.balance},${user.transactions},${user.lastAccess},${user.status}`
-      ).join("\n");
+    try {
+      // Simular exportação de dados dos usuários para CSV
+      const csvContent = "data:text/csv;charset=utf-8," +
+        "ID,Nome,Email,Saldo,Transações,Último Acesso,Status\n" +
+        users.map(user =>
+          `${user.id},"${user.name}","${user.email}",${user.balance},${user.transactions},${user.lastAccess},${user.status}`
+        ).join("\n");
 
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "usuarios_clara.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "usuarios_clara.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Erro ao exportar dados:", error);
+      alert("Erro ao exportar dados. Tente novamente.");
+    }
   };
 
   const handleViewUser = (user: User) => {
@@ -132,6 +153,11 @@ export default function AdminDashboard() {
     // Simular exclusão de usuário
     if (confirm(`Tem certeza que deseja excluir o usuário ${user.name}?`)) {
       setUsers(prev => prev.filter(u => u.id !== user.id));
+      setStats(prev => ({
+        ...prev,
+        totalUsers: prev.totalUsers - 1,
+        activeUsers: user.status === "active" ? prev.activeUsers - 1 : prev.activeUsers,
+      }));
       alert("Usuário excluído com sucesso!");
     }
   };
@@ -338,18 +364,21 @@ export default function AdminDashboard() {
                         <button
                           onClick={() => handleViewUser(user)}
                           className="p-2 text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
+                          title="Visualizar usuário"
                         >
                           <Eye className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleEditUser(user)}
                           className="p-2 text-green-600 hover:bg-green-50 dark:text-green-400 dark:hover:bg-green-900/30 rounded-lg transition-colors"
+                          title="Editar usuário"
                         >
                           <Edit className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDeleteUser(user)}
                           className="p-2 text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/30 rounded-lg transition-colors"
+                          title="Excluir usuário"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>

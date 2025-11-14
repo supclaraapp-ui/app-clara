@@ -1,217 +1,141 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Header } from "@/components/custom/header";
+import { Navbar } from "@/components/custom/navbar";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Logo } from "@/components/logo";
-import { TrendingUp, TrendingDown, CreditCard, Calendar, Target, PiggyBank, Plus, ArrowLeft, User, Settings, Bell, Download, Upload, Users } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { User, Mail, Phone, MapPin, Calendar, Settings, LogOut, Shield, Bell } from "lucide-react";
 
-export default function Perfil() {
-  const router = useRouter();
-
-  const handleNavigateHome = () => router.push("/");
-  const handleNavigateLancamentos = () => router.push("/lancamentos");
-  const handleNavigateCartoes = () => router.push("/cartoes");
-  const handleNavigateDashboard = () => router.push("/dashboard");
-  const handleNavigatePerfil = () => router.push("/perfil");
-
-  const handleBackup = () => {
-    alert("Backup dos dados realizado com sucesso!");
-  };
-
-  const handleExport = () => {
-    alert("Dados exportados com sucesso!");
-  };
-
-  const handleImport = () => {
-    alert("Importação de dados - funcionalidade em desenvolvimento");
+export default function PerfilPage() {
+  const user = {
+    name: "João Silva",
+    email: "joao.silva@email.com",
+    phone: "(11) 98765-4321",
+    address: "São Paulo, SP",
+    memberSince: "Janeiro 2024",
+    avatar: "JS",
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="p-4 border-b">
-        <div className="flex items-center justify-between">
-          <Button variant="ghost" size="icon" onClick={() => router.back()}>
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <Logo />
-          <div></div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <Header title="Meu Perfil" subtitle="Gerencie suas informações" />
 
-      {/* Main Content */}
-      <main className="p-4 space-y-6 pb-20">
-        <div className="text-center">
-          <h1 className="text-2xl font-semibold">Meu Perfil</h1>
-          <p className="text-muted-foreground">Gerencie suas configurações</p>
-        </div>
+      <main className="p-4 space-y-6 pb-24 max-w-4xl mx-auto">
+        {/* Avatar e Info Principal */}
+        <Card className="shadow-lg">
+          <CardContent className="pt-6">
+            <div className="flex flex-col items-center text-center">
+              <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-3xl font-bold mb-4 shadow-xl">
+                {user.avatar}
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
+                {user.name}
+              </h2>
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
+                Membro desde {user.memberSince}
+              </p>
+              <Button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700">
+                Editar Perfil
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
-        {/* Profile Info */}
-        <Card>
+        {/* Informações Pessoais */}
+        <Card className="shadow-lg">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
               <User className="w-5 h-5" />
               Informações Pessoais
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center">
-                <User className="w-8 h-8 text-muted-foreground" />
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                <Mail className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Email</p>
+                  <p className="font-medium text-gray-900 dark:text-white">{user.email}</p>
+                </div>
               </div>
-              <div>
-                <h3 className="font-semibold">João Silva</h3>
-                <p className="text-sm text-muted-foreground">joao@email.com</p>
+
+              <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                <Phone className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Telefone</p>
+                  <p className="font-medium text-gray-900 dark:text-white">{user.phone}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                <MapPin className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Localização</p>
+                  <p className="font-medium text-gray-900 dark:text-white">{user.address}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                <Calendar className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Membro desde</p>
+                  <p className="font-medium text-gray-900 dark:text-white">{user.memberSince}</p>
+                </div>
               </div>
             </div>
-            <Button variant="outline" className="w-full">
-              Alterar Foto de Perfil
-            </Button>
           </CardContent>
         </Card>
 
-        {/* Theme Settings */}
-        <Card>
+        {/* Configurações */}
+        <Card className="shadow-lg">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
               <Settings className="w-5 h-5" />
-              Personalização
+              Configurações
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label>Tema</Label>
-              <div className="grid grid-cols-3 gap-2 mt-2">
-                <Button variant="outline" size="sm">Claro</Button>
-                <Button variant="outline" size="sm">Escuro</Button>
-                <Button variant="outline" size="sm">Sistema</Button>
-              </div>
-            </div>
-            <div>
-              <Label>Cor do Tema</Label>
-              <div className="grid grid-cols-4 gap-2 mt-2">
-                <Button variant="outline" size="sm" className="bg-blue-500 text-white">Azul</Button>
-                <Button variant="outline" size="sm" className="bg-green-500 text-white">Verde</Button>
-                <Button variant="outline" size="sm" className="bg-purple-500 text-white">Roxo</Button>
-                <Button variant="outline" size="sm" className="bg-pink-500 text-white">Rosa</Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+          <CardContent>
+            <div className="space-y-2">
+              <Button
+                variant="ghost"
+                className="w-full justify-start gap-3 h-auto py-3"
+              >
+                <Bell className="w-5 h-5" />
+                <span>Notificações</span>
+              </Button>
 
-        {/* Notifications */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Bell className="w-5 h-5" />
-              Notificações
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <Label>Lembretes de contas</Label>
-              <Switch defaultChecked />
-            </div>
-            <div className="flex items-center justify-between">
-              <Label>Alertas de orçamento</Label>
-              <Switch defaultChecked />
-            </div>
-            <div className="flex items-center justify-between">
-              <Label>Notificações push</Label>
-              <Switch />
+              <Button
+                variant="ghost"
+                className="w-full justify-start gap-3 h-auto py-3"
+              >
+                <Shield className="w-5 h-5" />
+                <span>Privacidade e Segurança</span>
+              </Button>
+
+              <Button
+                variant="ghost"
+                className="w-full justify-start gap-3 h-auto py-3"
+              >
+                <Settings className="w-5 h-5" />
+                <span>Preferências</span>
+              </Button>
             </div>
           </CardContent>
         </Card>
 
-        {/* Data Management */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Gerenciamento de Dados</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <Button variant="outline" className="w-full justify-start" onClick={handleBackup}>
-              <Download className="w-4 h-4 mr-2" />
-              Fazer Backup
-            </Button>
-            <Button variant="outline" className="w-full justify-start" onClick={handleExport}>
-              <Download className="w-4 h-4 mr-2" />
-              Exportar Dados
-            </Button>
-            <Button variant="outline" className="w-full justify-start" onClick={handleImport}>
-              <Upload className="w-4 h-4 mr-2" />
-              Importar Planilha
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* Family Management */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Users className="w-5 h-5" />
-              Gestão Familiar
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <Button variant="outline" className="w-full justify-start">
-              <Plus className="w-4 h-4 mr-2" />
-              Adicionar Cônjuge
-            </Button>
-            <Button variant="outline" className="w-full justify-start">
-              <Plus className="w-4 h-4 mr-2" />
-              Adicionar Dependente
-            </Button>
-            <Button variant="outline" className="w-full justify-start">
-              Ver Financeiro Familiar
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* Security */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Segurança</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <Button variant="outline" className="w-full justify-start">
-              Alterar Senha
-            </Button>
-            <Button variant="outline" className="w-full justify-start text-red-600">
-              Sair da Conta
-            </Button>
-          </CardContent>
-        </Card>
-      </main>
-
-      {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-background border-t p-2">
-        <div className="flex justify-around">
-          <Button variant="ghost" size="sm" className="flex-col gap-1" onClick={handleNavigateHome}>
-            <TrendingUp className="w-5 h-5" />
-            <span className="text-xs">Home</span>
-          </Button>
-          <Button variant="ghost" size="sm" className="flex-col gap-1" onClick={handleNavigateLancamentos}>
-            <Plus className="w-5 h-5" />
-            <span className="text-xs">Lançamentos</span>
-          </Button>
-          <Button variant="ghost" size="sm" className="flex-col gap-1" onClick={handleNavigateCartoes}>
-            <CreditCard className="w-5 h-5" />
-            <span className="text-xs">Cartões</span>
-          </Button>
-          <Button variant="ghost" size="sm" className="flex-col gap-1" onClick={handleNavigateDashboard}>
-            <Target className="w-5 h-5" />
-            <span className="text-xs">Dashboard</span>
-          </Button>
-          <Button variant="ghost" size="sm" className="flex-col gap-1" onClick={handleNavigatePerfil}>
-            <PiggyBank className="w-5 h-5" />
-            <span className="text-xs">Perfil</span>
+        {/* Ações */}
+        <div className="space-y-3">
+          <Button
+            variant="outline"
+            className="w-full justify-center gap-2 h-12 border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
+          >
+            <LogOut className="w-5 h-5" />
+            Sair da Conta
           </Button>
         </div>
-      </nav>
+      </main>
+
+      <Navbar />
     </div>
   );
 }
