@@ -8,10 +8,34 @@ export const isSupabaseConfigured = () => {
   return !!supabaseUrl && !!supabaseAnonKey && supabaseUrl !== '' && supabaseAnonKey !== '';
 };
 
-// Cria cliente apenas se as variáveis estiverem configuradas
+// Mock client para quando Supabase não estiver configurado
+const createMockClient = () => ({
+  auth: {
+    signInWithPassword: async () => ({ 
+      data: { user: null, session: null }, 
+      error: { message: 'Supabase não configurado' } 
+    }),
+    signUp: async () => ({ 
+      data: { user: null, session: null }, 
+      error: { message: 'Supabase não configurado' } 
+    }),
+    signOut: async () => ({ error: null }),
+    getSession: async () => ({ data: { session: null }, error: null }),
+    getUser: async () => ({ data: { user: null }, error: null }),
+    onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
+  },
+  from: () => ({
+    select: () => ({ data: [], error: null }),
+    insert: () => ({ data: null, error: null }),
+    update: () => ({ data: null, error: null }),
+    delete: () => ({ data: null, error: null }),
+  }),
+});
+
+// Cria cliente real se configurado, mock se não
 export const supabase = isSupabaseConfigured()
   ? createClient(supabaseUrl, supabaseAnonKey)
-  : null;
+  : createMockClient() as any;
 
 // Types para o banco de dados
 export type Transaction = {
