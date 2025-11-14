@@ -20,9 +20,10 @@ import {
   Zap,
   Users,
   ArrowRight,
-  Sparkles
+  Sparkles,
+  AlertCircle
 } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 
 const testimonials = [
   {
@@ -90,6 +91,18 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    // Verificar se Supabase está configurado
+    if (!isSupabaseConfigured()) {
+      setError("Supabase não está configurado. Configure nas Integrações do Projeto.");
+      return;
+    }
+
+    if (!supabase) {
+      setError("Erro ao conectar com o Supabase.");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -103,7 +116,7 @@ export default function LoginPage() {
         if (error) throw error;
         
         if (data.user) {
-          router.push("/dashboard");
+          router.push("/");
         }
       } else {
         // Cadastro
@@ -120,7 +133,7 @@ export default function LoginPage() {
         if (error) throw error;
         
         if (data.user) {
-          router.push("/dashboard");
+          router.push("/");
         }
       }
     } catch (err: any) {
@@ -236,6 +249,23 @@ export default function LoginPage() {
           <div className="lg:sticky lg:top-8">
             <Card className="border-0 shadow-2xl">
               <CardContent className="p-8">
+                {/* Alerta se Supabase não configurado */}
+                {!isSupabaseConfigured() && (
+                  <div className="mb-6 p-4 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg">
+                    <div className="flex items-start gap-3">
+                      <AlertCircle className="w-5 h-5 text-orange-600 dark:text-orange-400 flex-shrink-0 mt-0.5" />
+                      <div className="space-y-1">
+                        <p className="text-sm font-medium text-orange-900 dark:text-orange-100">
+                          Supabase não configurado
+                        </p>
+                        <p className="text-xs text-orange-800 dark:text-orange-200">
+                          Configure o Supabase em <strong>Configurações → Integrações</strong> para fazer login.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Toggle Login/Signup */}
                 <div className="flex gap-2 p-1 bg-gray-100 dark:bg-gray-800 rounded-xl mb-6">
                   <button
@@ -329,8 +359,8 @@ export default function LoginPage() {
 
                   <Button
                     type="submit"
-                    disabled={loading}
-                    className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-6 rounded-xl shadow-lg hover:shadow-xl transition-all"
+                    disabled={loading || !isSupabaseConfigured()}
+                    className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-6 rounded-xl shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {loading ? (
                       <span className="flex items-center justify-center gap-2">

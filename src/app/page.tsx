@@ -1,319 +1,273 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Header } from "@/components/custom/header";
-import { Navbar } from "@/components/custom/navbar";
-import { TrendingUp, TrendingDown, CreditCard, Calendar, Target, PiggyBank } from "lucide-react";
+import { Check, Sparkles, TrendingUp, Shield, Zap, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
 
 export default function Home() {
   const router = useRouter();
-  const [user, setUser] = useState<any>(null);
-  const [transactions, setTransactions] = useState<any[]>([]);
-  const [cards, setCards] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  const greeting = user?.user_metadata?.full_name 
-    ? `Bom dia, ${user.user_metadata.full_name.split(' ')[0]}` 
-    : "Bom dia";
-
-  // Calcular totais das transações
-  const monthlyIncome = transactions
-    .filter(t => t.type === 'income')
-    .reduce((sum, t) => sum + t.amount, 0);
-  
-  const monthlyExpenses = transactions
-    .filter(t => t.type === 'expense')
-    .reduce((sum, t) => sum + t.amount, 0);
-  
-  const monthlyBalance = monthlyIncome - monthlyExpenses;
-  const currentBalance = 15420.50 + monthlyBalance;
-
-  useEffect(() => {
-    checkUser();
-    loadData();
-  }, []);
-
-  const checkUser = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      router.push("/login");
-      return;
-    }
-    setUser(user);
-  };
-
-  const loadData = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      // Carregar transações
-      const { data: transactionsData } = await supabase
-        .from('transactions')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('date', { ascending: false })
-        .limit(10);
-
-      if (transactionsData) {
-        setTransactions(transactionsData);
-      }
-
-      // Carregar cartões
-      const { data: cardsData } = await supabase
-        .from('cards')
-        .select('*')
-        .eq('user_id', user.id);
-
-      if (cardsData) {
-        setCards(cardsData);
-      }
-    } catch (error) {
-      console.error('Erro ao carregar dados:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const quickActions = [
-    {
-      icon: TrendingDown,
-      label: "Lançar Despesa",
-      path: "/lancamentos?type=expense",
-      color: "text-red-600 dark:text-red-400",
-    },
+  const features = [
     {
       icon: TrendingUp,
-      label: "Lançar Entrada",
-      path: "/lancamentos?type=income",
-      color: "text-green-600 dark:text-green-400",
+      title: "Controle Financeiro Completo",
+      description: "Gerencie receitas, despesas e investimentos em um só lugar"
     },
     {
-      icon: CreditCard,
-      label: "Ver Cartões",
-      path: "/cartoes",
-      color: "text-blue-600 dark:text-blue-400",
+      icon: Shield,
+      title: "Segurança Total",
+      description: "Seus dados protegidos com criptografia de ponta"
     },
     {
-      icon: Calendar,
-      label: "Ver Agenda",
-      path: "/agenda",
-      color: "text-purple-600 dark:text-purple-400",
+      icon: Zap,
+      title: "Relatórios Inteligentes",
+      description: "Insights automáticos sobre suas finanças"
     },
     {
-      icon: Target,
-      label: "Projetado vs Orçado",
-      path: "/planejamento",
-      color: "text-orange-600 dark:text-orange-400",
-    },
-    {
-      icon: PiggyBank,
-      label: "Ver Investimentos",
-      path: "/investimentos",
-      color: "text-teal-600 dark:text-teal-400",
-    },
+      icon: Users,
+      title: "Interface Intuitiva",
+      description: "Fácil de usar, feito para você"
+    }
   ];
 
-  // Cartões próximos ao vencimento
-  const upcomingCards = cards
-    .filter(card => {
-      const today = new Date().getDate();
-      const daysUntilDue = card.due_date - today;
-      return daysUntilDue >= 0 && daysUntilDue <= 7;
-    })
-    .sort((a, b) => a.due_date - b.due_date);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Carregando...</p>
-        </div>
-      </div>
-    );
-  }
+  const plans = [
+    {
+      name: "Mensal",
+      price: "19,90",
+      period: "/mês",
+      features: [
+        "Controle completo de receitas e despesas",
+        "Gestão de cartões de crédito",
+        "Planejamento financeiro",
+        "Relatórios detalhados",
+        "Suporte prioritário",
+        "Atualizações automáticas"
+      ],
+      highlight: false
+    },
+    {
+      name: "Anual",
+      price: "199,90",
+      period: "/ano",
+      savings: "Economize R$ 38,90",
+      features: [
+        "Tudo do plano mensal",
+        "2 meses grátis",
+        "Controle completo de receitas e despesas",
+        "Gestão de cartões de crédito",
+        "Planejamento financeiro",
+        "Relatórios detalhados",
+        "Suporte prioritário VIP",
+        "Atualizações automáticas"
+      ],
+      highlight: true
+    }
+  ];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <Header />
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-gray-900">
+      {/* Header */}
+      <header className="border-b bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+              <Sparkles className="w-6 h-6 text-white" />
+            </div>
+            <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              CLARA
+            </span>
+          </div>
+          <Button 
+            onClick={() => router.push("/login")}
+            variant="outline"
+            className="font-semibold"
+          >
+            Entrar
+          </Button>
+        </div>
+      </header>
 
-      <main className="p-4 space-y-6 pb-24 max-w-4xl mx-auto">
-        {/* Greeting */}
-        <div className="text-center py-4">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
-            {greeting}
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Aqui está o resumo da sua semana
+      {/* Hero Section */}
+      <section className="container mx-auto px-4 py-20 text-center">
+        <Badge className="mb-6 bg-gradient-to-r from-blue-500 to-purple-600 text-white border-0 px-4 py-2 text-sm">
+          🎉 Controle suas finanças de forma inteligente
+        </Badge>
+        
+        <h1 className="text-5xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
+          Transforme sua
+          <span className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            Vida Financeira
+          </span>
+        </h1>
+        
+        <p className="text-xl text-gray-600 dark:text-gray-300 mb-12 max-w-2xl mx-auto">
+          O sistema completo para gerenciar suas finanças pessoais com inteligência e simplicidade
+        </p>
+
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <Button 
+            size="lg"
+            className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-6 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all"
+            onClick={() => {
+              const pricingSection = document.getElementById('pricing');
+              pricingSection?.scrollIntoView({ behavior: 'smooth' });
+            }}
+          >
+            Começar Agora
+          </Button>
+          <Button 
+            size="lg"
+            variant="outline"
+            className="px-8 py-6 text-lg font-semibold"
+            onClick={() => router.push("/login")}
+          >
+            Ver Demonstração
+          </Button>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="container mx-auto px-4 py-20">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            Recursos Poderosos
+          </h2>
+          <p className="text-xl text-gray-600 dark:text-gray-300">
+            Tudo que você precisa para ter controle total
           </p>
         </div>
 
-        {/* Current Balance */}
-        <Card className="bg-gradient-to-br from-blue-500 to-purple-600 border-0 shadow-xl">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-white/90">
-              Saldo Atual Consolidado
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-4xl font-bold text-white">
-              R$ {currentBalance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Monthly Summary */}
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-gray-900 dark:text-white">
-              Resumo do Mês
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex justify-between items-center p-3 bg-green-50 dark:bg-green-900/20 rounded-xl">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-green-100 dark:bg-green-900/40 rounded-full flex items-center justify-center">
-                  <TrendingUp className="w-5 h-5 text-green-600 dark:text-green-400" />
-                </div>
-                <span className="font-medium text-gray-900 dark:text-white">Entradas</span>
-              </div>
-              <span className="font-bold text-green-600 dark:text-green-400 text-lg">
-                R$ {monthlyIncome.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-              </span>
-            </div>
-
-            <div className="flex justify-between items-center p-3 bg-red-50 dark:bg-red-900/20 rounded-xl">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-red-100 dark:bg-red-900/40 rounded-full flex items-center justify-center">
-                  <TrendingDown className="w-5 h-5 text-red-600 dark:text-red-400" />
-                </div>
-                <span className="font-medium text-gray-900 dark:text-white">Saídas</span>
-              </div>
-              <span className="font-bold text-red-600 dark:text-red-400 text-lg">
-                R$ {monthlyExpenses.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-              </span>
-            </div>
-
-            <div className="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-700">
-              <span className="font-semibold text-gray-900 dark:text-white">Saldo do Mês</span>
-              <span className={`font-bold text-xl ${monthlyBalance >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                R$ {monthlyBalance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-              </span>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Cartões Próximos ao Vencimento */}
-        {upcomingCards.length > 0 && (
-          <Card className="shadow-lg">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
-                <CreditCard className="w-5 h-5" />
-                Cartões Próximos ao Vencimento
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {upcomingCards.map((card) => {
-                  const today = new Date().getDate();
-                  const daysUntilDue = card.due_date - today;
-                  return (
-                    <div key={card.id} className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-800 rounded-xl hover:shadow-md transition-shadow">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/40 rounded-lg flex items-center justify-center">
-                          <CreditCard className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-                        </div>
-                        <span className="font-medium text-gray-900 dark:text-white">{card.name}</span>
-                      </div>
-                      <Badge variant={daysUntilDue <= 2 ? "destructive" : "secondary"} className="font-semibold">
-                        Vence em {daysUntilDue} {daysUntilDue === 1 ? 'dia' : 'dias'}
-                      </Badge>
-                    </div>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Últimas Transações */}
-        {transactions.length > 0 && (
-          <Card className="shadow-lg">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
-                <Calendar className="w-5 h-5" />
-                Últimas Transações
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {transactions.slice(0, 5).map((transaction) => (
-                  <div key={transaction.id} className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-800 rounded-xl hover:shadow-md transition-shadow">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                        transaction.type === 'income' 
-                          ? 'bg-green-100 dark:bg-green-900/40' 
-                          : 'bg-red-100 dark:bg-red-900/40'
-                      }`}>
-                        {transaction.type === 'income' ? (
-                          <TrendingUp className="w-5 h-5 text-green-600 dark:text-green-400" />
-                        ) : (
-                          <TrendingDown className="w-5 h-5 text-red-600 dark:text-red-400" />
-                        )}
-                      </div>
-                      <div>
-                        <span className="font-medium text-gray-900 dark:text-white block">
-                          {transaction.description}
-                        </span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
-                          {new Date(transaction.date).toLocaleDateString('pt-BR')}
-                        </span>
-                      </div>
-                    </div>
-                    <span className={`font-bold ${
-                      transaction.type === 'income' 
-                        ? 'text-green-600 dark:text-green-400' 
-                        : 'text-red-600 dark:text-red-400'
-                    }`}>
-                      {transaction.type === 'income' ? '+' : '-'}R$ {transaction.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Quick Actions */}
-        <div className="grid grid-cols-2 gap-4">
-          {quickActions.map((action) => {
-            const Icon = action.icon;
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {features.map((feature, index) => {
+            const Icon = feature.icon;
             return (
-              <Button
-                key={action.path}
-                variant="outline"
-                className="h-24 flex-col gap-3 hover:shadow-lg transition-all hover:scale-105 bg-white dark:bg-gray-800"
-                onClick={() => router.push(action.path)}
-              >
-                <div className={`w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center ${action.color}`}>
-                  <Icon className="w-6 h-6" />
-                </div>
-                <span className="text-sm font-medium text-gray-900 dark:text-white text-center">
-                  {action.label}
-                </span>
-              </Button>
+              <Card key={index} className="border-2 hover:shadow-xl transition-all hover:scale-105 bg-white dark:bg-gray-800">
+                <CardHeader>
+                  <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mb-4">
+                    <Icon className="w-7 h-7 text-white" />
+                  </div>
+                  <CardTitle className="text-xl text-gray-900 dark:text-white">
+                    {feature.title}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600 dark:text-gray-300">
+                    {feature.description}
+                  </p>
+                </CardContent>
+              </Card>
             );
           })}
         </div>
-      </main>
+      </section>
 
-      <Navbar />
+      {/* Pricing Section */}
+      <section id="pricing" className="container mx-auto px-4 py-20">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            Escolha seu Plano
+          </h2>
+          <p className="text-xl text-gray-600 dark:text-gray-300">
+            Preços simples e transparentes
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+          {plans.map((plan, index) => (
+            <Card 
+              key={index} 
+              className={`relative ${
+                plan.highlight 
+                  ? 'border-4 border-purple-500 shadow-2xl scale-105' 
+                  : 'border-2'
+              } bg-white dark:bg-gray-800`}
+            >
+              {plan.highlight && (
+                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                  <Badge className="bg-gradient-to-r from-blue-500 to-purple-600 text-white border-0 px-6 py-2 text-sm font-bold">
+                    MAIS POPULAR
+                  </Badge>
+                </div>
+              )}
+              
+              <CardHeader className="text-center pb-8 pt-8">
+                <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                  {plan.name}
+                </CardTitle>
+                {plan.savings && (
+                  <Badge variant="secondary" className="mb-4 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                    {plan.savings}
+                  </Badge>
+                )}
+                <div className="flex items-baseline justify-center gap-2">
+                  <span className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    R$ {plan.price}
+                  </span>
+                  <span className="text-gray-600 dark:text-gray-400">
+                    {plan.period}
+                  </span>
+                </div>
+              </CardHeader>
+
+              <CardContent className="space-y-6">
+                <ul className="space-y-4">
+                  {plan.features.map((feature, featureIndex) => (
+                    <li key={featureIndex} className="flex items-start gap-3">
+                      <div className="w-5 h-5 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <Check className="w-3 h-3 text-green-600 dark:text-green-400" />
+                      </div>
+                      <span className="text-gray-700 dark:text-gray-300">
+                        {feature}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+
+                <Button 
+                  className={`w-full py-6 text-lg font-semibold ${
+                    plan.highlight
+                      ? 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-xl'
+                      : 'bg-gray-900 hover:bg-gray-800 text-white dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100'
+                  }`}
+                  onClick={() => router.push("/login")}
+                >
+                  Começar Agora
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="container mx-auto px-4 py-20">
+        <Card className="bg-gradient-to-r from-blue-500 to-purple-600 border-0 shadow-2xl">
+          <CardContent className="text-center py-16 px-4">
+            <h2 className="text-4xl font-bold text-white mb-6">
+              Pronto para começar?
+            </h2>
+            <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
+              Junte-se a milhares de pessoas que já transformaram suas finanças com o CLARA
+            </p>
+            <Button 
+              size="lg"
+              className="bg-white text-purple-600 hover:bg-gray-100 px-8 py-6 text-lg font-semibold shadow-xl"
+              onClick={() => router.push("/login")}
+            >
+              Criar Conta Grátis
+            </Button>
+          </CardContent>
+        </Card>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t bg-white dark:bg-gray-900 py-8">
+        <div className="container mx-auto px-4 text-center text-gray-600 dark:text-gray-400">
+          <p>© 2024 CLARA. Todos os direitos reservados.</p>
+        </div>
+      </footer>
     </div>
   );
 }

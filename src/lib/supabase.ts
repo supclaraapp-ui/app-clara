@@ -3,15 +3,15 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
-// Cria cliente apenas se as variáveis estiverem configuradas
-export const supabase = supabaseUrl && supabaseAnonKey 
-  ? createClient(supabaseUrl, supabaseAnonKey)
-  : null;
-
 // Helper para verificar se Supabase está configurado
 export const isSupabaseConfigured = () => {
-  return supabaseUrl !== '' && supabaseAnonKey !== '';
+  return !!supabaseUrl && !!supabaseAnonKey && supabaseUrl !== '' && supabaseAnonKey !== '';
 };
+
+// Cria cliente apenas se as variáveis estiverem configuradas
+export const supabase = isSupabaseConfigured()
+  ? createClient(supabaseUrl, supabaseAnonKey)
+  : null;
 
 // Types para o banco de dados
 export type Transaction = {
