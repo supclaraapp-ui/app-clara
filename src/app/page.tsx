@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/badge";
 import { Check, Sparkles, TrendingUp, Shield, Zap, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { getStripe } from "@/lib/stripe";
 
 export default function Home() {
   const router = useRouter();
@@ -38,9 +37,9 @@ export default function Home() {
   const plans = [
     {
       name: "Mensal",
-      price: "19,90",
-      period: "/mês",
-      priceId: "price_monthly", // Você vai substituir isso pela sua Price ID do Stripe
+      price: "19.90",
+      displayPrice: "19,90",
+      period: "mês",
       features: [
         "Controle completo de receitas e despesas",
         "Gestão de cartões de crédito",
@@ -53,9 +52,9 @@ export default function Home() {
     },
     {
       name: "Anual",
-      price: "199,90",
-      period: "/ano",
-      priceId: "price_yearly", // Você vai substituir isso pela sua Price ID do Stripe
+      price: "199.90",
+      displayPrice: "199,90",
+      period: "ano",
       savings: "Economize R$ 38,90",
       features: [
         "Tudo do plano mensal",
@@ -71,33 +70,34 @@ export default function Home() {
     }
   ];
 
-  const handleSubscribe = async (priceId: string, planName: string) => {
+  const handleSubscribe = async (planName: string, price: string, period: string) => {
     try {
       setLoadingPlan(planName);
 
-      // Cria a sessão de checkout
+      // Cria a preferência de pagamento no Mercado Pago
       const response = await fetch('/api/create-checkout-session', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          priceId,
           planName,
+          price,
+          period,
         }),
       });
 
-      const { sessionId, url } = await response.json();
+      const data = await response.json();
 
-      if (url) {
-        // Redireciona para o checkout do Stripe
-        window.location.href = url;
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      // Redireciona para o checkout do Mercado Pago
+      if (data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
       } else {
-        // Fallback: usa o Stripe.js para redirecionar
-        const stripe = await getStripe();
-        if (stripe) {
-          await stripe.redirectToCheckout({ sessionId });
-        }
+        throw new Error('URL de checkout não encontrada');
       }
     } catch (error) {
       console.error('Erro ao processar pagamento:', error);
@@ -213,6 +213,9 @@ export default function Home() {
           <p className="text-xl text-gray-600 dark:text-gray-300">
             Preços simples e transparentes
           </p>
+          <Badge className="mt-4 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 px-4 py-2">
+            💳 Pagamento via Mercado Pago
+          </Badge>
         </div>
 
         <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
@@ -244,10 +247,10 @@ export default function Home() {
                 )}
                 <div className="flex items-baseline justify-center gap-2">
                   <span className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                    R$ {plan.price}
+                    R$ {plan.displayPrice}
                   </span>
                   <span className="text-gray-600 dark:text-gray-400">
-                    {plan.period}
+                    /{plan.period}
                   </span>
                 </div>
               </CardHeader>
@@ -272,7 +275,7 @@ export default function Home() {
                       ? 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-xl'
                       : 'bg-gray-900 hover:bg-gray-800 text-white dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100'
                   }`}
-                  onClick={() => handleSubscribe(plan.priceId, plan.name)}
+                  onClick={() => handleSubscribe(plan.name, plan.price, plan.period)}
                   disabled={loadingPlan === plan.name}
                 >
                   {loadingPlan === plan.name ? 'Processando...' : 'Assinar Agora'}
